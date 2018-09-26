@@ -4,19 +4,24 @@ import './App.css';
 import AppNavBar from './components/layout/AppNavBar';
 import Dashboard from './components/layout/Dashboard';
 
+import {Provider} from 'react-redux';
+import store from './store';
+
 class App extends Component {
     render() {
         return (
-            <BrowserRouter>
-                <div className="App">
-                    <AppNavBar/>
-                    <div className="container">
-                        <Switch>
-                            <Route exact path='/' component={Dashboard} />
-                        </Switch>
+            <Provider store={store}>
+                <BrowserRouter>
+                    <div className="App">
+                        <AppNavBar/>
+                        <div className="container">
+                            <Switch>
+                                <Route exact path='/' component={Dashboard}/>
+                            </Switch>
+                        </div>
                     </div>
-                </div>
-            </BrowserRouter>
+                </BrowserRouter>
+            </Provider>
         );
     }
 }
