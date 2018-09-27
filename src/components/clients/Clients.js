@@ -24,16 +24,18 @@ class Clients extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        const { clients } = props;
+        const {clients} = props;
 
-        if(clients){
-            const total = clients.reduce( (total, client) => {
+        if(clients) {
+            const total = clients.reduce((total, client) => {
                 return total += parseFloat(client.balance.toString());
             }, 0);
 
-           return {
-               totalOwed: total
-           }
+            return {
+                totalOwed: total
+            }
+        } else {
+            return null;
         }
     }
 
@@ -50,9 +52,9 @@ class Clients extends React.Component {
                         </div>
                         <div className="col-md-6">
                             <h5 className="text-right text-secondary">
-                                Total Owed:{ ' ' }
+                                Total Owed:{' '}
                                 <span className="text-primary">
-                                    ${ parseFloat(totalOwed/100).toLocaleString() }
+                                    ${parseFloat(totalOwed / 100).toLocaleString()}
                                 </span>
                             </h5>
                         </div>
