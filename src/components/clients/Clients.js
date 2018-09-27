@@ -8,21 +8,39 @@
 
 import React from 'react';
 import {Link} from 'react-router-dom';
+import {compose} from 'redux';
+import {connect} from 'react-redux';
+import {firestoreConnect} from 'react-redux-firebase';
+import PropTypes from 'prop-types';
+import Loading from '../layout/Loading';
 
 class Clients extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            totalOwed: null
+        }
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        const { clients } = props;
+
+        if(clients){
+            const total = clients.reduce( (total, client) => {
+                return total += parseFloat(client.balance.toString());
+            }, 0);
+
+           return {
+               totalOwed: total
+           }
+        }
     }
 
     render() {
-        const clients = [{
-            id: '89238223',
-            firstName: 'Clint',
-            lastName: 'Milner',
-            email: 'clinton.milner@gmail.com',
-            phone: '07519242324',
-            balance: '311'
-        }];
+        const {clients} = this.props,
+            {totalOwed} = this.state;
+
         if(clients) {
             return (
                 <div>
@@ -31,7 +49,12 @@ class Clients extends React.Component {
                             <h2><i className="fas fa-fw fa-users"></i> Clients</h2>
                         </div>
                         <div className="col-md-6">
-
+                            <h5 className="text-right text-secondary">
+                                Total Owed:{ ' ' }
+                                <span className="text-primary">
+                                    ${ parseFloat(totalOwed/100).toLocaleString() }
+                                </span>
+                            </h5>
                         </div>
                     </div>
                     <table className="table table-striped">
@@ -40,7 +63,7 @@ class Clients extends React.Component {
                             <th>Name</th>
                             <th>Email</th>
                             <th>Balance</th>
-                            <th />
+                            <th/>
                         </tr>
                         </thead>
                         <tbody>
@@ -49,7 +72,7 @@ class Clients extends React.Component {
                                 return <tr key={client.id}>
                                     <td>{client.firstName} {client.lastName}</td>
                                     <td>{client.email}</td>
-                                    <td>${parseFloat(client.balance).toFixed(2)}</td>
+                                    <td>${parseFloat(client.balance / 100).toFixed(2)}</td>
                                     <td>
                                         <Link to={`/client/${client.id}`} className='btn btn-secondary btn-sm'>
                                             <i className="fas fa-fw fa-arrow-circle-right"></i> Details
@@ -63,9 +86,20 @@ class Clients extends React.Component {
                 </div>
             );
         } else {
-            return <h1>Loading...</h1>
+            return <Loading/>
         }
     }
 };
 
-export default Clients;
+Clients.propTypes = {
+    firestore: PropTypes.object.isRequired,
+    clients: PropTypes.array
+};
+
+export default compose(
+    firestoreConnect([{collection: 'clients'}]),
+    connect((state, props) => ({
+            clients: state.firestore.ordered.clients
+        })
+    )
+)(Clients);
